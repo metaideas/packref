@@ -26,6 +26,12 @@ export interface PackageReferenceOptions {
   readonly projectPath?: string
 }
 
+interface PackageReferenceIdentity {
+  name: string
+  registry: string
+  version?: string
+}
+
 export const listPackageReferences = Effect.fn("listPackageReferences")(function* (
   options: PackageReferenceOptions = {}
 ) {
@@ -47,11 +53,16 @@ export const findPackageReferenceMatches = Effect.fn("findPackageReferenceMatche
   const entries = findPackageEntries(lockfile, spec)
 
   if (entries.length === 0) {
-    return yield* new PackageNotReferencedError({
+    const identity: PackageReferenceIdentity = {
       name: spec.name,
       registry: spec.registry,
-      ...(spec.specifier === undefined ? {} : { version: spec.specifier }),
-    })
+    }
+
+    if (spec.specifier !== undefined) {
+      identity.version = spec.specifier
+    }
+
+    return yield* new PackageNotReferencedError(identity)
   }
 
   return {

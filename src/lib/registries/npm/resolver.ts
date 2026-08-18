@@ -53,12 +53,15 @@ export default defineRegistry({
       }
 
       const repository = versionMetadata.repository ?? metadata.repository
-      const normalizedRepository =
-        repository === undefined
-          ? undefined
-          : typeof repository === "string"
-            ? { url: repository }
-            : { directory: repository.directory, url: repository.url }
+      const normalizedRepository = Option.fromNullishOr(repository).pipe(
+        Option.map(
+          Match.type<string | Exclude<typeof repository, string | undefined>>().pipe(
+            Match.when(Match.string, (url) => ({ url })),
+            Match.orElse(({ directory, url }) => ({ directory, url }))
+          )
+        ),
+        Option.getOrUndefined
+      )
 
       return {
         identity: {

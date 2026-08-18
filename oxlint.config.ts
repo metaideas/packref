@@ -1,8 +1,10 @@
-import core from "adamantite/lint"
+import core, { ignorePatterns } from "adamantite/lint"
+import antislop from "adamantite/lint/antislop"
 import { defineConfig } from "oxlint"
 
 export default defineConfig({
-  extends: [core],
+  extends: [core, antislop],
+  ignorePatterns: [...ignorePatterns],
   options: {
     respectEslintDisableDirectives: true,
     typeAware: true,

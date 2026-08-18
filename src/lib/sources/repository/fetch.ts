@@ -53,14 +53,15 @@ export const fetchRepositorySnapshot = Effect.fn("fetchRepositorySnapshot")(func
 ) {
   const downloader = yield* RepositoryDownloader
   const fetchSource = resolvedRepository.source.fetchSource
-  const source = {
-    ...(options.includeDirectory !== false && resolvedRepository.source.directory !== undefined
-      ? { directory: resolvedRepository.source.directory }
-      : {}),
+  const source: RepositorySource = {
     host: resolvedRepository.source.host,
     type: "repository",
     url: resolvedRepository.source.url,
-  } satisfies RepositorySource
+  }
+
+  if (options.includeDirectory !== false && resolvedRepository.source.directory !== undefined) {
+    Object.assign(source, { directory: resolvedRepository.source.directory })
+  }
 
   return yield* materializeStoreEntry(
     identity,

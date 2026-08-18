@@ -26,8 +26,10 @@ const makeTempDirectory = async () => {
   return path
 }
 
+// SAFETY: Each caller supplies the expected shape for test data that the test itself creates.
 const readJson = async <A>(path: string) => JSON.parse(await readFile(path, "utf8")) as A
 
+// SAFETY: Each caller supplies the expected shape for test data that the test itself creates.
 const readJsonc = async <A>(path: string) => parse(await readFile(path, "utf8")) as A
 
 const readText = (path: string) => readFile(path, "utf8")

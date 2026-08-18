@@ -3,6 +3,7 @@ import * as Context from "effect/Context"
 import * as Effect from "effect/Effect"
 import * as Exit from "effect/Exit"
 import * as Layer from "effect/Layer"
+import * as Match from "effect/Match"
 import { OperationCancelled } from "#lib/core/errors.ts"
 
 interface PrompterService {
@@ -105,7 +106,10 @@ export class Prompter extends Context.Service<Prompter, PrompterService>()("Prom
               Exit.match(exit, {
                 onFailure: () => options.failure,
                 onSuccess: (value) =>
-                  typeof options.success === "function" ? options.success(value) : options.success,
+                  Match.value(options.success).pipe(
+                    Match.when(Match.string, (message) => message),
+                    Match.orElse((getMessage) => getMessage(value))
+                  ),
               })
             )
           })

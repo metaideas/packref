@@ -7,7 +7,7 @@ import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
 import * as PlatformError from "effect/PlatformError"
-import type { PackageIdentity } from "#lib/core/packages.ts"
+import type { PackageIdentity, RepositoryPackageSpec } from "#lib/core/packages.ts"
 import type { NormalizedRepositorySource } from "#lib/core/source.ts"
 import {
   GitExecutableNotFoundError,
@@ -147,7 +147,7 @@ describe("RemoteTagReader", () => {
 
   it("does not retry a permanent command failure", async () => {
     let commandCount = 0
-    const listing = runWithRemoteTagCommand(listRemoteTags(), () =>
+    const error = await runWithRemoteTagCommand(Effect.flip(listRemoteTags()), () =>
       Effect.sync(() => {
         commandCount += 1
       }).pipe(
@@ -161,15 +161,13 @@ describe("RemoteTagReader", () => {
       )
     )
 
-    const error = await listing.catch((error: unknown) => error)
-
     expect(error).toBeInstanceOf(NetworkError)
     expect(commandCount).toBe(1)
   })
 
   it("retries a transient command failure with a bounded policy", async () => {
     let commandCount = 0
-    const listing = runWithRemoteTagCommand(listRemoteTags(), () =>
+    const error = await runWithRemoteTagCommand(Effect.flip(listRemoteTags()), () =>
       Effect.sync(() => {
         commandCount += 1
       }).pipe(
@@ -182,8 +180,6 @@ describe("RemoteTagReader", () => {
         )
       )
     )
-
-    const error = await listing.catch((error: unknown) => error)
 
     expect(error).toBeInstanceOf(NetworkError)
     expect(commandCount).toBe(3)
@@ -218,7 +214,7 @@ done
 
   it("retries spawner failures with a bounded policy", async () => {
     let commandCount = 0
-    const listing = runWithRemoteTagCommand(listRemoteTags(), () =>
+    const error = await runWithRemoteTagCommand(Effect.flip(listRemoteTags()), () =>
       Effect.sync(() => {
         commandCount += 1
       }).pipe(
@@ -235,8 +231,6 @@ done
       )
     )
 
-    const error = await listing.catch((error: unknown) => error)
-
     expect(error).toBeInstanceOf(NetworkError)
     expect(commandCount).toBe(3)
   })
@@ -244,7 +238,7 @@ done
   it("reports an actionable error without retry when the git executable is missing", async () => {
     let commandCount = 0
 
-    const listing = runWithRemoteTagCommand(listRemoteTags(), () =>
+    const error = await runWithRemoteTagCommand(Effect.flip(listRemoteTags()), () =>
       Effect.sync(() => {
         commandCount += 1
       }).pipe(
@@ -261,22 +255,26 @@ done
       )
     )
 
-    const error = await listing.catch((error: unknown) => error)
-
     expect(error).toBeInstanceOf(GitExecutableNotFoundError)
     expect(error).toHaveProperty("message", expect.stringMatching(/Install Git.*PATH/su))
     expect(commandCount).toBe(1)
   })
 })
 
-const resolveDirect = (specifier?: string) =>
-  resolveDirectRepositoryRef({
+const resolveDirect = (specifier?: string) => {
+  const spec: RepositoryPackageSpec = {
     _tag: "repository",
     name: "owner/repo",
     registry: "github",
     repository: { url: "github:owner/repo" },
-    ...(specifier === undefined ? {} : { specifier }),
-  })
+  }
+
+  if (specifier !== undefined) {
+    Object.assign(spec, { specifier })
+  }
+
+  return resolveDirectRepositoryRef(spec)
+}
 
 describe("resolveDirectRepositoryRef", () => {
   const output = `

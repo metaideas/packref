@@ -39,7 +39,7 @@ const run = <A, E>(
   effect: Effect.Effect<A, E, FileSystem.FileSystem | HttpClient.HttpClient | Path.Path>,
   home: string,
   download: () => Effect.Effect<Uint8Array>,
-  status: number | (() => number) = 200
+  getStatus: () => number = () => 200
 ) =>
   Effect.runPromise(
     effect.pipe(
@@ -55,7 +55,7 @@ const run = <A, E>(
                   HttpClientResponse.fromWeb(
                     request,
                     new Response(archive, {
-                      status: typeof status === "function" ? status() : status,
+                      status: getStatus(),
                     })
                   )
                 )

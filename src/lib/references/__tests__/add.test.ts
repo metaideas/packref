@@ -41,13 +41,26 @@ const exists = (path: string) =>
     .then(() => true)
     .catch(() => false)
 
-const makeVersionMetadata = (name: string, version: string, repository?: string) => ({
-  dist: {
-    tarball: `https://registry.npmjs.org/${name}/-/${name}-${version}.tgz`,
-  },
-  ...(repository === undefined ? {} : { repository }),
-  version,
-})
+type VersionMetadata = {
+  -readonly [
+    Key in keyof NpmPackageMetadata["versions"][string]
+  ]: NpmPackageMetadata["versions"][string][Key]
+}
+
+const makeVersionMetadata = (name: string, version: string, repository?: string) => {
+  const metadata: VersionMetadata = {
+    dist: {
+      tarball: `https://registry.npmjs.org/${name}/-/${name}-${version}.tgz`,
+    },
+    version,
+  }
+
+  if (repository !== undefined) {
+    metadata.repository = repository
+  }
+
+  return metadata
+}
 
 const makeMetadata = (
   name: string,
@@ -243,9 +256,13 @@ describe("addPackageReference", () => {
     }
 
     await runAdd("github:owner/repo", projectPath, home, services)
-    const failure = await runAdd("github:owner/repo/packages/a", projectPath, home, services).catch(
-      (error: unknown) => error
-    )
+    let failure: unknown
+
+    try {
+      await runAdd("github:owner/repo/packages/a", projectPath, home, services)
+    } catch (error) {
+      failure = error
+    }
 
     expect(failure).toHaveProperty("_tag", "RepositoryDirectoryConflictError")
     expect(failure).not.toHaveProperty("existingDirectory")

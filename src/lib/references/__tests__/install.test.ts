@@ -21,6 +21,14 @@ import { RemoteTagReader } from "#lib/sources/repository/tags.ts"
 import { PackrefHome } from "#lib/workspace/home.ts"
 import { Reflinker } from "#lib/workspace/reflinker.ts"
 
+interface TestRepositorySource {
+  directory?: string
+  host: string
+  requestedRef?: string
+  type: "repository"
+  url: string
+}
+
 const temporaryPaths: string[] = []
 
 const makeTempDirectory = async () => {
@@ -48,19 +56,25 @@ const repositoryEntry = (
   version: string,
   directory?: string,
   tracking: PackageEntry["tracking"] = "manual"
-) =>
-  ({
+) => {
+  const source: TestRepositorySource = {
+    host: "github.com",
+    type: "repository",
+    url: `https://github.com/example/${name.replace("@scope/", "")}`,
+  }
+
+  if (directory !== undefined) {
+    source.directory = directory
+  }
+
+  return {
     name,
     registry: "npm",
-    source: {
-      ...(directory === undefined ? {} : { directory }),
-      host: "github.com",
-      type: "repository",
-      url: `https://github.com/example/${name.replace("@scope/", "")}`,
-    },
+    source,
     tracking,
     version,
-  }) satisfies PackageEntry
+  } satisfies PackageEntry
+}
 
 const getIdentitySegments = (entry: PackageEntry) => [
   "packages",
@@ -223,15 +237,20 @@ describe("installPackageReferences", () => {
     async ({ requestedRef, version }) => {
       const projectPath = await makeTempDirectory()
       const home = await makeTempDirectory()
+      const source: TestRepositorySource = {
+        host: "github.com",
+        type: "repository",
+        url: "https://github.com/owner/repo",
+      }
+
+      if (requestedRef !== undefined) {
+        source.requestedRef = requestedRef
+      }
+
       const entry = {
         ...repositoryEntry("owner/repo", version),
         registry: "github",
-        source: {
-          host: "github.com",
-          ...(requestedRef === undefined ? {} : { requestedRef }),
-          type: "repository",
-          url: "https://github.com/owner/repo",
-        },
+        source,
       } satisfies PackageEntry
       const repositoryRefs: string[] = []
       const controls = { repositoryDownloads: 0, repositoryRefs, tarballDownloads: 0 }

@@ -19,7 +19,7 @@
         "@changesets/cli": "3.0.0",
         "@types/bun": "1.3.14",
         "@types/semver": "7.8.0",
-        "adamantite": "0.34.4",
+        "adamantite": "0.36.0",
         "bunup": "0.16.32",
         "figlet": "1.11.4",
         "knip": "6.32.2",
@@ -393,7 +393,7 @@
 
     "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g=="],
 
-    "adamantite": ["adamantite@0.34.4", "", { "dependencies": { "@clack/prompts": "1.7.0", "@effect/platform-node": "4.0.0-rc.108", "defu": "6.1.7", "effect": "4.0.0-rc.108", "esrap": "2.3.2", "jsonc-parser": "3.3.1", "nypm": "0.6.9", "oxc-parser": "^0.144.0" }, "peerDependencies": { "typescript": ">=7" }, "bin": { "adamantite": "bin/adamantite" } }, "sha512-KFJFaYDW0wsFNuEiZy/PblqpWXqTl3VJ/F1tMBjYcAuuDJ7lKzreWe4gJ4e+bIbMoWBkzu43a49CQz8rYnYiAw=="],
+    "adamantite": ["adamantite@0.36.0", "", { "dependencies": { "@clack/prompts": "1.7.0", "@effect/platform-node": "4.0.0-rc.108", "defu": "6.1.7", "effect": "4.0.0-rc.108", "esrap": "2.3.2", "jsonc-parser": "3.3.1", "nypm": "0.6.9", "oxc-parser": "^0.144.0" }, "peerDependencies": { "typescript": ">=7" }, "bin": { "adamantite": "bin/adamantite" } }, "sha512-U0LfhmL7QrXIspcel6XP8++xzyLn22RpfmNANI5fYa7XA5QVVRUPYcmbftyMjMDtmdEZ4yKTaXENj+LXGgn3ag=="],
 
     "bun-types": ["bun-types@1.3.14", "", { "dependencies": { "@types/node": "*" } }, "sha512-4N0ig0fEomHt5R0KCFWjovxow98rIoRwKolrYdCcknNwMekCXRnWEUvgu5soYV8QXtVsrUD8B95MBOZGPvr6KQ=="],
 
